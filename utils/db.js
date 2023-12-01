@@ -1,6 +1,8 @@
 /* eslint-disable max-len */
 
 import { MongoClient } from 'mongodb';
+// sha1 hash the password
+const sha1 = require('sha1');
 
 // host: from the environment variable DB_HOST or default: localhost
 const host = process.env.DB_HOST || 'localhost';
@@ -58,6 +60,30 @@ class DBClient {
       console.error(error);
       throw error;
     }
+  }
+
+  // an asynchronous function addUser that inserts a document in the collection users
+  async addUser(email, password) {
+    try {
+      const collection = this.db.collection('users');
+      const hashedPassword = sha1(password);
+      const obj = {
+        email,
+        password: hashedPassword,
+      };
+      const result = await collection.insertOne(obj);
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  // an asynchronous funtion to check if email of a user exists in the collection users
+  async checkUser(email) {
+    const collection = this.db.collection('users');
+    const result = await collection.findOne({ email });
+    return result;
   }
 }
 
