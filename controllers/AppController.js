@@ -36,6 +36,7 @@ async function getStats(req, res) {
     files,
   });
 }
+
 module.exports = {
   getStatus,
   getStats,

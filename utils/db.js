@@ -85,6 +85,28 @@ class DBClient {
     const result = await collection.findOne({ email });
     return result;
   }
+
+  // an asynchronous function to check if email and password of a user exists in the collection users
+  async checkUserPassword(email, password) {
+    const collection = this.db.collection('users');
+    const hashedPassword = sha1(password);
+    const result = await collection.findOne({ email, password: hashedPassword });
+    return result;
+  }
+
+  // an asynchronous function to check user and password base on the token
+  async checkUserToken(token) {
+    // decode the token to get the email and password
+    try {
+      const decodedToken = (Buffer.from(token, 'base64').toString().split(':'));
+      const email = decodedToken[0];
+      const password = decodedToken[1];
+      const result = await this.checkUserPassword(email, password);
+      return result;
+    } catch (error) {
+      return null;
+    }
+  }
 }
 
 // create an instane of the class and export it

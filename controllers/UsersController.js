@@ -1,4 +1,8 @@
 /* eslint-disable no-unused-vars */
+
+const ChildPool = require('bull/lib/process/child-pool');
+const { default: redisClient } = require('../utils/redis');
+
 /* eslint-disable max-len */
 const dbClient = require('../utils/db').default;
 
@@ -41,6 +45,38 @@ async function postNew(req, res) {
   });
 }
 
+async function getMe(req, res) {
+  // extract the token from the header X-Token
+  const token = req.get('X-Token');
+  if (!token) {
+    res.status(401).json({
+      error: 'Unauthorized',
+    });
+    return;
+  }
+  // get user object from the token in redis
+  const key = `auth_${token}`;
+  const userBasicToken = await redisClient.get(key);
+  if (!userBasicToken) {
+    res.status(401).json({
+      error: 'Unauthorized',
+    });
+    return;
+  }
+  const userObj = await dbClient.checkUserToken(userBasicToken);
+  if (!userObj) {
+    res.status(401).json({
+      error: 'Unauthorized',
+    });
+    return;
+  }
+  res.status(200).json({
+    id: userObj._id,
+    email: userObj.email,
+  });
+}
+
 module.exports = {
   postNew,
+  getMe,
 };
