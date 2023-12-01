@@ -19,7 +19,7 @@ class RedisClient {
     // });
     // upon any error of the redis client
     this.client.on('error', (err) => {
-      console.log(`Redis client not connected to the server: ${err}`);
+      console.error(`Redis client not connected to the server: ${err}`);
     });
     // Manually promisify the nedded functions in the client object
     this.client.getAsync = util.promisify(this.client.get).bind(this.client);
@@ -42,7 +42,7 @@ class RedisClient {
       const value = await this.client.getAsync(key);
       return value;
     } catch (err) {
-      console.log(err);
+      console.error(err);
       throw err;
     }
   }
@@ -53,7 +53,7 @@ class RedisClient {
       const result = await this.client.setExAsync(key, duration, value);
       return result;
     } catch (err) {
-      console.log(err);
+      console.error(err);
       throw err;
     }
   }
@@ -64,7 +64,7 @@ class RedisClient {
       const result = await this.client.delAsync(key);
       return result;
     } catch (err) {
-      console.log(err);
+      console.error(err);
       throw err;
     }
   }
