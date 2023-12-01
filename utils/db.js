@@ -22,7 +22,7 @@ class DBClient {
     try {
       await this.client.connect();
       this.db = this.client.db(dbName);
-      console.log(`Connected to the database: ${this.db.databaseName}`);
+      // console.log(`Connected to the database: ${this.db.databaseName}`);
     } catch (err) {
       console.error(err);
     }
