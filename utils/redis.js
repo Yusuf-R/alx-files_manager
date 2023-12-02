@@ -13,6 +13,10 @@ class RedisClient {
   // the constructor that creates a client to Redis:
   constructor() {
     this.client = createClient();
+    // Manually promisify the nedded functions in the client object
+    this.client.getAsync = util.promisify(this.client.get).bind(this.client);
+    this.client.setExAsync = util.promisify(this.client.setex).bind(this.client);
+    this.client.delAsync = util.promisify(this.client.del).bind(this.client);
     // upon succesful connection
     // this.client.on('connect', () => {
     //   console.log('Redis client connected to the server');
@@ -21,14 +25,11 @@ class RedisClient {
     this.client.on('error', (err) => {
       console.error(`Redis client not connected to the server: ${err}`);
     });
-    // Manually promisify the nedded functions in the client object
-    this.client.getAsync = util.promisify(this.client.get).bind(this.client);
-    this.client.setExAsync = util.promisify(this.client.setex).bind(this.client);
-    this.client.delAsync = util.promisify(this.client.del).bind(this.client);
   }
 
   // a function isAlive that returns true when the connection to Redis is a success otherwise, false
   isAlive() {
+    // check if redis is connected
     if (this.client.connected) {
       return true;
     } else {

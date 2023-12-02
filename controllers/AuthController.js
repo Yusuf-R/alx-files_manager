@@ -43,8 +43,10 @@ async function getConnect(req, res) {
   const key = `auth_${newToken}`;
 
   // set the new token in redis with expiration 24hrs
+  // the value should be the user_id instead
+  const userId = result._id;
   try {
-    await redisClient.set(key, token, EXP);
+    await redisClient.set(key, userId, EXP);
   } catch (error) {
     res.status(500).json({
       error: 'Redis is not alive',
@@ -70,15 +72,15 @@ async function getDisconnect(req, res) {
   }
   // retriee the basicAuthToken from reids
   const key = `auth_${token}`;
-  const basicAuthToken = await redisClient.get(key);
-  if (!basicAuthToken) {
+  const userID = await redisClient.get(key);
+  if (!userID) {
     res.status(401).json({
       error: 'Unauthorized',
     });
     return;
   }
   // retreive the user object base on the token
-  const user = await dbClient.checkUserToken(basicAuthToken);
+  const user = await dbClient.getUser(userID);
   if (!user) {
     res.status(401).json({
       error: 'Unauthorized',

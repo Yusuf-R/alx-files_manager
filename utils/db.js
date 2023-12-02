@@ -99,6 +99,9 @@ class DBClient {
     // decode the token to get the email and password
     try {
       const decodedToken = (Buffer.from(token, 'base64').toString().split(':'));
+      if (decodedToken.length !== 2) {
+        return null;
+      }
       const email = decodedToken[0];
       const password = decodedToken[1];
       const result = await this.checkUserPassword(email, password);
@@ -106,6 +109,20 @@ class DBClient {
     } catch (error) {
       return null;
     }
+  }
+
+  // an asynchronous function to get the user object from the user_id
+  async getUser(userId) {
+    const collection = this.db.collection('users');
+    const result = await collection.findOne({ _id: userId });
+    return result;
+  }
+
+  // an asynchronous function to check if a file exists in the collection files
+  async checkFile(filename) {
+    const collection = this.db.collection('files');
+    const result = await collection.findOne({ filename });
+    return result;
   }
 }
 
