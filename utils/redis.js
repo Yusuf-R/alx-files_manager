@@ -19,7 +19,7 @@ class RedisClient {
     // });
     // upon any error of the redis client
     this.client.on('error', (err) => {
-      console.error(`Redis client not connected to the server: ${err}`);
+      console.error(`${err}`);
     });
     // Manually promisify the nedded functions in the client object
     this.client.getAsync = util.promisify(this.client.get).bind(this.client);
