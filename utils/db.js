@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
-
-import { MongoClient } from 'mongodb';
+const { MongoClient, ObjectId } = require('mongodb');
 // sha1 hash the password
 const sha1 = require('sha1');
 
@@ -113,8 +112,10 @@ class DBClient {
 
   // an asynchronous function to get the user object from the user_id
   async getUser(userId) {
+    const objId = new ObjectId(userId);
     const collection = this.db.collection('users');
-    const result = await collection.findOne({ _id: userId });
+    // find the user that matches the id
+    const result = await collection.findOne({ _id: objId });
     return result;
   }
 

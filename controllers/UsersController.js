@@ -47,11 +47,11 @@ async function postNew(req, res) {
 async function userXToken(token) {
   // get user object from the token in redis
   const key = `auth_${token}`;
-  const userBasicToken = await redisClient.get(key);
-  if (!userBasicToken) {
+  const userID = await redisClient.get(key);
+  if (!userID) {
     return null;
   }
-  const userObj = await dbClient.checkUserToken(userBasicToken);
+  const userObj = await dbClient.getUser(userID);
   if (!userObj) {
     return null;
   }

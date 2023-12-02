@@ -46,7 +46,7 @@ async function getConnect(req, res) {
   // the value should be the user_id instead
   const userId = result._id;
   try {
-    await redisClient.set(key, userId, EXP);
+    await redisClient.set(key, userId.toString(), EXP);
   } catch (error) {
     res.status(500).json({
       error: 'Redis is not alive',
