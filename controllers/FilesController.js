@@ -69,14 +69,6 @@ async function postUpload(req, res) {
     });
     return;
   }
-  const { data } = req.body;
-  // check if the data is missing and type is not folder
-  if (!data && type !== 'folder') {
-    res.status(400).json({
-      error: 'Missing data',
-    });
-    return;
-  }
   // if parentId is set
   if (parentId) {
     // check if the parent exists
@@ -121,7 +113,14 @@ async function postUpload(req, res) {
   // store this filename in this file path, thus combine the path
   // to be like /tmp/files_manager/uuid
   const filePath = path.join(fileDir, filename);
-
+  const { data } = req.body;
+  // check if the data is missing and type is not folder
+  if (!data && type !== 'folder') {
+    res.status(400).json({
+      error: 'Missing data',
+    });
+    return;
+  }
   // At this stage, file type is either file or image
   // thus write the data to the file as base64
   const data64 = Buffer.from(data, 'base64');
