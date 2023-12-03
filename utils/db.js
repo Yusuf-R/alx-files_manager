@@ -131,7 +131,9 @@ class DBClient {
   async getParent(parentId, userObj) {
     const collection = this.db.collection('files');
     const objID = new ObjectId(parentId);
-    const result = await collection.findOne({ _id: objID, userId: userObj._id });
+    const usrID = new ObjectId(userObj._id);
+    const result = await collection.findOne({ _id: objID, userId: usrID });
+    console.log(result);
     return result;
   }
 

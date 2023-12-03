@@ -31,6 +31,7 @@ async function ensureFolderPath(folderDir) {
 
 async function postUpload(req, res) {
   const xToken = await req.get('X-Token');
+  console.log(xToken);
   // get user object from the token in redis
   if (!xToken) {
     res.status(401).json({
@@ -46,19 +47,21 @@ async function postUpload(req, res) {
     return;
   }
   // check for parentId and isPublic
-  let { parentId } = req.body;
+  let { parentId } = await req.body;
   if (!parentId) {
     parentId = 0;
   }
-  let { isPublic } = req.body;
+  let { isPublic } = await req.body;
   if (!isPublic) {
     isPublic = false;
   }
   // check for the respective fields of the post request
-  const { name, type } = req.body;
+  const { name, type } = await req.body;
+  console.log(name);
+  console.log(type);
   if (!name) {
     res.status(400).json({
-      error: 'Missing name',
+      error: 'Missing my name',
     });
     return;
   }
@@ -72,6 +75,7 @@ async function postUpload(req, res) {
   // if parentId is set
   if (parentId) {
     // check if the parent exists
+    console.log(userObj._id);
     const result = await dbClient.getParent(parentId, userObj);
     if (!result) {
       res.status(400).json({
@@ -102,7 +106,14 @@ async function postUpload(req, res) {
       res.sendStatus(501);
       return;
     }
-    res.status(201).json(fileObj);
+    res.status(201).json({
+      id: newDoc.insertedId,
+      name,
+      type,
+      isPublic,
+      parentId,
+      userId: userObj._id,
+    });
     return;
   }
   // else type is either file or image
@@ -113,7 +124,7 @@ async function postUpload(req, res) {
   // store this filename in this file path, thus combine the path
   // to be like /tmp/files_manager/uuid
   const filePath = path.join(fileDir, filename);
-  const { data } = req.body;
+  const { data } = await req.body;
   // check if the data is missing and type is not folder
   if (!data && type !== 'folder') {
     res.status(400).json({
@@ -135,8 +146,15 @@ async function postUpload(req, res) {
       isPublic,
       localPath: filePath,
     };
-    await dbClient.createNewDoc(obj);
-    res.status(201).json(obj);
+    const result = await dbClient.createNewDoc(obj);
+    res.status(201).json({
+      id: result.insertedId,
+      name,
+      type,
+      isPublic,
+      parentId,
+      userId: userObj._id,
+    });
     return;
   } catch (error) {
     res.status(500).json({
