@@ -43,6 +43,7 @@ async function postUpload(req, res) {
     res.status(401).json({
       error: 'Unauthorized',
     });
+    return;
   }
   // check for parentId and isPublic
   let { parentId } = req.body;
@@ -74,6 +75,7 @@ async function postUpload(req, res) {
     res.status(400).json({
       error: 'Missing data',
     });
+    return;
   }
   // if parentId is set
   if (parentId) {
@@ -106,6 +108,7 @@ async function postUpload(req, res) {
     const newDoc = await dbClient.createNewDoc(obj);
     if (!newDoc) {
       res.sendStatus(501);
+      return;
     }
     res.status(201).json(obj);
     return;
@@ -133,7 +136,7 @@ async function postUpload(req, res) {
       isPublic,
       localPath: filePath,
     };
-    const newDoc = await dbClient.createNewDoc(obj);
+    await dbClient.createNewDoc(obj);
     res.status(201).json(obj);
   } catch (error) {
     res.status(500).json({
