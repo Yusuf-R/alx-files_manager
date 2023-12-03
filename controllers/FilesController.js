@@ -61,7 +61,7 @@ async function postUpload(req, res) {
   console.log(type);
   if (!name) {
     res.status(400).json({
-      error: 'Missing my name',
+      error: 'Missing name',
     });
     return;
   }
