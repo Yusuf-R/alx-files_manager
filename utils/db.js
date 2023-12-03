@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable max-len */
 const { MongoClient, ObjectId } = require('mongodb');
 // sha1 hash the password
@@ -124,6 +125,25 @@ class DBClient {
     const collection = this.db.collection('files');
     const result = await collection.findOne({ filename });
     return result;
+  }
+
+  // an asynchronous functoin to get the Parent folder for a given pareintId
+  async getParent(parentId, userObj) {
+    const collection = this.db.collection('files');
+    const objID = new ObjectId(parentId);
+    const result = await collection.findOne({ _id: objID, userId: userObj._id });
+    return result;
+  }
+
+  // an asnchronous funtion to creeate new file document
+  async createNewDoc(obj) {
+    const collection = this.db.collection('files');
+    try {
+      const restult = await collection.insertOne(obj);
+      return restult;
+    } catch (err) {
+      return null;
+    }
   }
 }
 
