@@ -137,10 +137,12 @@ async function postUpload(req, res) {
     };
     await dbClient.createNewDoc(obj);
     res.status(201).json(obj);
+    return;
   } catch (error) {
     res.status(500).json({
       error: 'Failed to write data to file',
     });
+    throw error;
   }
 }
 
