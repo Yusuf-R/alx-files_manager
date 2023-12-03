@@ -90,19 +90,19 @@ async function postUpload(req, res) {
   // we are now dealing with parentId = 0 and type = folder
   // create file obj in the db
   if (type === 'folder') {
-    const obj = {
+    const fileObj = {
       userId: userObj._id,
       name,
       type,
       parentId,
       isPublic,
     };
-    const newDoc = await dbClient.createNewDoc(obj);
+    const newDoc = await dbClient.createNewDoc(fileObj);
     if (!newDoc) {
       res.sendStatus(501);
       return;
     }
-    res.status(201).json(obj);
+    res.status(201).json(fileObj);
     return;
   }
   // else type is either file or image
