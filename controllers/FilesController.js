@@ -301,13 +301,14 @@ async function putPublish(req, res) {
     });
     return;
   }
+  const update = await dbClient.getParent(id, userObj);
   res.status(200).json({
-    id: result._id,
-    name: result.name,
-    type: result.type,
-    isPublic: result.isPublic,
-    parentId: result.parentId,
-    userId: result.userId,
+    id: update._id,
+    name: update.name,
+    type: update.type,
+    isPublic: update.isPublic,
+    parentId: update.parentId,
+    userId: update.userId,
   });
   return;
 }
@@ -348,13 +349,14 @@ async function putUnpublish(req, res) {
     });
     return;
   }
+  const update = await dbClient.getParent(id, userObj);
   res.status(200).json({
-    id: result._id,
-    name: result.name,
-    type: result.type,
-    isPublic: result.isPublic,
-    parentId: result.parentId,
-    userId: result.userId,
+    id: update._id,
+    name: update.name,
+    type: update.type,
+    isPublic: update.isPublic,
+    parentId: update.parentId,
+    userId: update.userId,
   });
   return;
 }
