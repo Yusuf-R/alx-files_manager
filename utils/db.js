@@ -162,7 +162,14 @@ class DBClient {
       },
     };
 
-    // stage 2: Pagination stages
+    // Stage 2: sort by _id in ascending order
+    const sortStage = {
+      $sort: {
+        _id: 1,
+      },
+    };
+
+    // stage 3: Pagination stages
     const paginationStage = [
       { $skip: skip },
       { $limit: limit },
