@@ -182,6 +182,13 @@ async function getShow(req, res) {
     return;
   }
   const { id } = await req.params;
+  //
+  if (!id) {
+    res.status(400).json({
+      error: 'Missing id',
+    });
+    return;
+  }
   // get the user object from the db base on the id and userId
   const result = await dbClient.getParent(id, userObj);
   if (!result) {
