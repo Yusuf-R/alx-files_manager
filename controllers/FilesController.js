@@ -254,6 +254,10 @@ async function getIndex(req, res) {
     res.status(200).json(files);
     return;
   }
+  res.status(404).json({
+    error: 'Not found',
+  });
+  return;
 }
 
 module.exports = {
