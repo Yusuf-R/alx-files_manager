@@ -165,7 +165,7 @@ class DBClient {
     // Stage 2: sort by _id in ascending order
     const sortStage = {
       $sort: {
-        _id: 1,
+        _id: -1,
       },
     };
 
@@ -178,6 +178,7 @@ class DBClient {
     try {
       const result = await collection.aggregate([
         matchStage,
+        sortStage,
         ...paginationStage,
       ]).toArray();
       return result;
