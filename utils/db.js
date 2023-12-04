@@ -133,7 +133,6 @@ class DBClient {
     const objID = new ObjectId(parentId);
     const usrID = new ObjectId(userObj._id);
     const result = await collection.findOne({ _id: objID, userId: usrID });
-    console.log(result);
     return result;
   }
 
@@ -144,6 +143,38 @@ class DBClient {
       const restult = await collection.insertOne(obj);
       return restult;
     } catch (err) {
+      return null;
+    }
+  }
+
+  async getPaginateOutput(parentId, userObj, skip, limit) {
+    const collection = this.db.collection('files');
+    // parse the parent id as in integer of base 10
+    const usrID = new ObjectId(userObj._id);
+
+    // paginate in 3 stages
+
+    // stage 1: set up the db query paremeters
+    const matchStage = {
+      $match: {
+        parentId,
+        userId: usrID,
+      },
+    };
+
+    // stage 2: Pagination stages
+    const paginationStage = [
+      { $skip: skip },
+      { $limit: limit },
+    ];
+
+    try {
+      const result = await collection.aggregate([
+        matchStage,
+        ...paginationStage,
+      ]).toArray();
+      return result;
+    } catch (error) {
       return null;
     }
   }

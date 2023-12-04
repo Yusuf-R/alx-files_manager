@@ -8,7 +8,7 @@ const router = express.Router();
 const { getStatus, getStats } = require('../controllers/AppController');
 const { postNew, getMe } = require('../controllers/UsersController');
 const { getConnect, getDisconnect } = require('../controllers/AuthController');
-const { postUpload } = require('../controllers/FilesController');
+const { postUpload, getShow, getIndex } = require('../controllers/FilesController');
 // GET /status => AppController.getStatus
 router.get('/status', getStatus);
 
@@ -29,5 +29,11 @@ router.get('/users/me', getMe);
 
 // POST /files => FilesController.postUpload
 router.post('/files', postUpload);
+
+// GET /files => FilesController.getFiles
+router.get('/files/:id', getShow);
+
+// GET /files => FilesController.getIndex
+router.get('/files', getIndex);
 
 module.exports = router;

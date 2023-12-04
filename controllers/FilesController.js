@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-return */
 /* eslint-disable no-unused-vars */
 /* eslint-disable import/newline-after-import */
 
@@ -29,17 +30,22 @@ async function ensureFolderPath(folderDir) {
   }
 }
 
+// helper function to get the user from the token
+async function userToken(xtoken) {
+  if (!xtoken) {
+    return null;
+  }
+  const usrObj = await userXToken(xtoken);
+  if (!usrObj) {
+    return null;
+  }
+  return usrObj;
+}
+
 async function postUpload(req, res) {
   const xToken = await req.get('X-Token');
-  console.log(xToken);
   // get user object from the token in redis
-  if (!xToken) {
-    res.status(401).json({
-      error: 'Unauthorized',
-    });
-    return;
-  }
-  const userObj = await userXToken(xToken);
+  const userObj = await userToken(xToken);
   if (!userObj) {
     res.status(401).json({
       error: 'Unauthorized',
@@ -164,6 +170,94 @@ async function postUpload(req, res) {
   }
 }
 
+// get the document base on the id
+async function getShow(req, res) {
+  // validate the user from the token
+  const xToken = await req.get('X-Token');
+  const userObj = await userToken(xToken);
+  if (!userObj) {
+    res.status(401).json({
+      error: 'Unauthorized',
+    });
+    return;
+  }
+  const { id } = await req.params;
+  // get the user object from the db base on the id and userId
+  const result = await dbClient.getParent(id, userObj);
+  if (!result) {
+    res.status(404).json({
+      error: 'Not found',
+    });
+    return;
+  }
+  res.status(200).json({
+    id: result._id,
+    name: result.name,
+    type: result.type,
+    isPublic: result.isPublic,
+    parentId: result.parentId,
+    userId: result.userId,
+  });
+  return;
+}
+
+async function getIndex(req, res) {
+  // validate the user from the token
+  const xToken = await req.get('X-Token');
+  const userObj = await userToken(xToken);
+  const itemsPerPage = 20;
+  if (!userObj) {
+    res.status(401).json({
+      error: 'Unauthorized',
+    });
+    return;
+  }
+  // get the parentId from the query
+  let { parentId } = await req.query;
+  if (!parentId) {
+    parentId = 0;
+  }
+  if (typeof parentId === 'string' && parentId === '0') {
+    parentId = parseInt(parentId, 10);
+  }
+  let { page } = await req.query;
+  if (!page) {
+    page = 0;
+  }
+  if (typeof page === 'string') {
+    parentId = parseInt(parentId, 10);
+  }
+  // check if the parent exists
+  const skip = page * itemsPerPage;
+  const limit = itemsPerPage;
+  if (parentId === 0 || typeof parentId === 'string') {
+    // get the parent object from the db base on the id and userId
+    // using pagination
+    const result = await dbClient.getPaginateOutput(parentId, userObj, skip, limit);
+    if (!result) {
+      res.status(404).json([]);
+      return;
+    }
+    // result is valid,
+    // return the list of files
+    const files = [];
+    result.forEach((file) => {
+      files.push({
+        id: file._id,
+        name: file.name,
+        type: file.type,
+        isPublic: file.isPublic,
+        parentId: file.parentId,
+        userId: file.userId,
+      });
+    });
+    res.status(200).json(files);
+    return;
+  }
+}
+
 module.exports = {
   postUpload,
+  getShow,
+  getIndex,
 };
