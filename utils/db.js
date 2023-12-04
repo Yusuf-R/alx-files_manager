@@ -186,6 +186,28 @@ class DBClient {
       return null;
     }
   }
+
+  async isPublicUpdate(id, obj) {
+    const collection = this.db.collection('files');
+    const objID = new ObjectId(id);
+    try {
+      const result = await collection.updateOne({ _id: objID }, { $set: obj });
+      return result;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async unPublishUpdate(id, obj) {
+    const collection = this.db.collection('files');
+    const objID = new ObjectId(id);
+    try {
+      const result = await collection.updateOne({ _id: objID }, { $set: obj });
+      return result;
+    } catch (error) {
+      return null;
+    }
+  }
 }
 
 // create an instane of the class and export it

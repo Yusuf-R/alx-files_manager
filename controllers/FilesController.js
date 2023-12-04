@@ -265,8 +265,105 @@ async function getIndex(req, res) {
   return;
 }
 
+async function putPublish(req, res) {
+  // extract the token and verify it
+  const xToken = await req.get('X-Token');
+  const userObj = await userToken(xToken);
+  if (!userObj) {
+    res.status(401).json({
+      error: 'Unauthorized',
+    });
+    return;
+  }
+  const { id } = await req.params;
+  if (!id) {
+    res.status(400).json({
+      error: 'Missing id',
+    });
+    return;
+  }
+  // get the user object from the db base on the id and userId
+  const result = await dbClient.getParent(id, userObj);
+  if (!result) {
+    res.status(404).json({
+      error: 'Not found',
+    });
+    return;
+  }
+  // update the isPublic to true
+  const obj = {
+    isPublic: true,
+  };
+  const updateResult = await dbClient.isPublicUpdate(id, obj);
+  console.log(updateResult);
+  if (!updateResult) {
+    res.status(404).json({
+      error: 'Not found',
+    });
+    return;
+  }
+  res.status(200).json({
+    id: result._id,
+    name: result.name,
+    type: result.type,
+    isPublic: result.isPublic,
+    parentId: result.parentId,
+    userId: result.userId,
+  });
+  return;
+}
+
+async function putUnpublish(req, res) {
+  // extract the token and verify it
+  const xToken = await req.get('X-Token');
+  const userObj = await userToken(xToken);
+  if (!userObj) {
+    res.status(401).json({
+      error: 'Unauthorized',
+    });
+    return;
+  }
+  const { id } = await req.params;
+  if (!id) {
+    res.status(400).json({
+      error: 'Missing id',
+    });
+    return;
+  }
+  // get the user object from the db base on the id and userId
+  const result = await dbClient.getParent(id, userObj);
+  if (!result) {
+    res.status(404).json({
+      error: 'Not found',
+    });
+    return;
+  }
+  // update the isPublic to true
+  const obj = {
+    isPublic: false,
+  };
+  const updateResult = await dbClient.unPublishUpdate(id, obj);
+  if (!updateResult) {
+    res.status(404).json({
+      error: 'Not found',
+    });
+    return;
+  }
+  res.status(200).json({
+    id: result._id,
+    name: result.name,
+    type: result.type,
+    isPublic: result.isPublic,
+    parentId: result.parentId,
+    userId: result.userId,
+  });
+  return;
+}
+
 module.exports = {
   postUpload,
   getShow,
   getIndex,
+  putPublish,
+  putUnpublish,
 };
