@@ -295,7 +295,6 @@ async function putPublish(req, res) {
     isPublic: true,
   };
   const updateResult = await dbClient.isPublicUpdate(id, obj);
-  console.log(updateResult);
   if (!updateResult) {
     res.status(404).json({
       error: 'Not found',
