@@ -380,9 +380,17 @@ async function getFile(req, res) {
     });
     return;
   }
+  // check if the id is linked to the file
+  const checkFile = await dbClient.checkFileObj(id);
+  if (!checkFile) {
+    res.status(404).json({
+      error: 'Not found',
+    });
+    return;
+  }
   // get the user object from the db base on the id and userId
   const result = await dbClient.getParent(id, userObj);
-  if (!result || !result.isPublic) {
+  if ((result.type === 'folder' || result.type === 'file') && !result.isPublic) {
     res.status(404).json({
       error: 'Not found',
     });

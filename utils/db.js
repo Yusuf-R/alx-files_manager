@@ -208,6 +208,13 @@ class DBClient {
       return null;
     }
   }
+
+  async checkFileObj(id) {
+    const collection = this.db.collection('files');
+    const objID = new ObjectId(id);
+    const result = await collection.findOne({ _id: objID });
+    return result;
+  }
 }
 
 // create an instane of the class and export it
