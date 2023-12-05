@@ -368,7 +368,7 @@ async function getFile(req, res) {
   const xToken = await req.get('X-Token');
   const userObj = await userToken(xToken);
   if (!userObj) {
-    res.status(401).json({
+    res.status(404).json({
       error: 'Not found',
     });
     return;
@@ -390,14 +390,6 @@ async function getFile(req, res) {
     return;
   }
   // check for the authorization fo this file
-  // it will involve cross checking the userObj._id and the file_userId
-  // if (fileObj.userId.toString() !== userObj._id.toString()) {
-  //   res.status(404).json({
-  //     error: 'Not found',
-  //   });
-  //   return;
-  // }
-
   // Check file type and isPublic for both file and folder
   if (((fileObj.type === 'file' || fileObj.type === 'folder') && fileObj.isPublic === false) && (fileObj.userId.toString() !== userObj._id.toString())) {
     res.status(404).json({
