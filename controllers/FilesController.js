@@ -367,7 +367,6 @@ async function getFile(req, res) {
   // extract the token and verify it
   const xToken = await req.get('X-Token');
   const userObj = await userToken(xToken);
-  console.log(userObj);
   if (!userObj) {
     res.status(401).json({
       error: 'Unauthorized',
@@ -383,7 +382,6 @@ async function getFile(req, res) {
   }
   // check if the id is linked to the file
   const fileObj = await dbClient.checkFileObj(id);
-  console.log(fileObj);
 
   if (!fileObj) {
     res.status(404).json({
