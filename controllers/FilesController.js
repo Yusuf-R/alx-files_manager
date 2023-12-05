@@ -397,8 +397,8 @@ async function getFile(req, res) {
     return;
   }
 
-  // Check file type and isPublic
-  if (fileObj.type === 'file' && fileObj.isPublic === false) {
+  // Check file type and isPublic for both file and folder
+  if ((fileObj.type === 'file' || fileObj.type === 'folder') && fileObj.isPublic === false) {
     res.status(404).json({
       error: 'Not found',
     });
