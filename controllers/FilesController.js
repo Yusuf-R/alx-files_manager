@@ -404,7 +404,7 @@ async function getFile(req, res) {
     await fs.access(filePath);
   } catch (err) {
     res.status(404).json({
-      error: 'File Not found',
+      error: 'Not found',
     });
     return;
   }
