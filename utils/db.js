@@ -151,17 +151,26 @@ class DBClient {
     const collection = this.db.collection('files');
     // parse the parent id as in integer of base 10
     const usrID = new ObjectId(userObj._id);
-
     // paginate in 3 stages
 
     // stage 1: set up the db query paremeters
-    const matchStage = {
-      $match: {
-        parentId,
-        userId: usrID,
-      },
-    };
-
+    // Declare matchStage outside of the if-else block
+    let matchStage;
+    // if parentId is 0.. then we query with only ther userId
+    if (parentId === 0) {
+      matchStage = {
+        $match: {
+          userId: usrID,
+        },
+      };
+    } else {
+      matchStage = {
+        $match: {
+          parentId,
+          userId: usrID,
+        },
+      };
+    }
     // Stage 2: sort by _id in ascending order
     const sortStage = {
       $sort: {
