@@ -169,6 +169,7 @@ async function postUpload(req, res) {
     });
     throw error;
   }
+  // update the endpoint to start a background processing
 }
 
 // get the document base on the id
@@ -383,7 +384,7 @@ async function getFile(req, res) {
   const result = await dbClient.getParent(id, userObj);
   if (!result || !result.isPublic) {
     res.status(404).json({
-      error: 'Public file Not found',
+      error: 'Not found',
     });
     return;
   }
