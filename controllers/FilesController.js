@@ -374,13 +374,13 @@ async function getFile(req, res) {
     return;
   }
   const { id } = await req.params;
-  if (!id) {
+  if (!id || typeof id !== 'string' || id.length === 0 || id.length !== 24) {
     res.status(400).json({
       error: 'Missing id',
     });
     return;
   }
-  // check if the id is linked to the file
+  // check if the id is linked to the file.
   const fileObj = await dbClient.checkFileObj(id);
   if (!fileObj) {
     res.status(404).json({
@@ -413,7 +413,6 @@ async function getFile(req, res) {
   }
   // Construct the full file path
   const filePath = fileObj.localPath;
-
   try {
     await fs.access(filePath);
   } catch (err) {
@@ -422,11 +421,9 @@ async function getFile(req, res) {
     });
     return;
   }
-
   // Get the MIME-type based on the name of the file
   const mimeType = mime.lookup(fileObj.name);
   res.setHeader('Content-Type', mimeType);
-
   // return the content of the file with the correct MIME-type
   res.sendFile(filePath);
 }
