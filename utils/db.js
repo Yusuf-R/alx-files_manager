@@ -166,7 +166,7 @@ class DBClient {
     } else {
       matchStage = {
         $match: {
-          parentId,
+          parentId: ObjectId(parentId),
           userId: usrID,
         },
       };
