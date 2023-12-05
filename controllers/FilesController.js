@@ -381,33 +381,34 @@ async function getFile(req, res) {
     return;
   }
   // check if the id is linked to the file
-  const checkFile = await dbClient.checkFileObj(id);
-  if (!checkFile) {
+  const fileObj = await dbClient.checkFileObj(id);
+
+  if (!fileObj) {
     res.status(404).json({
       error: 'Not found',
     });
     return;
   }
-  // get the user object from the db base on the id and userId
-  const result = await dbClient.getParent(id, userObj);
-  if ((result.type === 'folder' || result.type === 'file') && !result.isPublic) {
+
+  // Check for authorization and file type
+  if ((fileObj.type === 'folder' || fileObj.type === 'file') && !fileObj.isPublic) {
     res.status(404).json({
       error: 'Not found',
     });
     return;
   }
+
   // check if the file type is a folder
-  if (result.type === 'folder') {
+  if (fileObj.type === 'folder') {
     res.status(400).json({
       error: 'A folder doesn\'t have content',
     });
     return;
   }
 
-  // check if file is present locally
-  // const filePath = path.join(fileDir, xToken);
-  // const y = '4c33b99c-bd7d-4c84-9cf6-c70dc380a280';
-  const filePath = result.localPath;
+  // Construct the full file path
+  const filePath = fileObj.localPath;
+
   try {
     await fs.access(filePath);
   } catch (err) {
@@ -416,10 +417,11 @@ async function getFile(req, res) {
     });
     return;
   }
-  // By using the module mime-types
-  // get the MIME-type based on the name of the file
-  const mimeType = mime.lookup(result.name);
+
+  // Get the MIME-type based on the name of the file
+  const mimeType = mime.lookup(fileObj.name);
   res.set('Content-Type', mimeType);
+
   // return the content of the file with the correct MIME-type
   res.sendFile(filePath);
 }
