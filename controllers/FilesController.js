@@ -4,6 +4,7 @@
 
 // asynchrouns fs module
 const fs = require('fs').promises;
+const mime = require('mime-types');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const dbClient = require('../utils/db').default;
@@ -361,10 +362,64 @@ async function putUnpublish(req, res) {
   return;
 }
 
+async function getFile(req, res) {
+  // extract the token and verify it
+  const xToken = await req.get('X-Token');
+  const userObj = await userToken(xToken);
+  if (!userObj) {
+    res.status(401).json({
+      error: 'Unauthorized',
+    });
+    return;
+  }
+  const { id } = await req.params;
+  if (!id) {
+    res.status(400).json({
+      error: 'Missing id',
+    });
+    return;
+  }
+  // get the user object from the db base on the id and userId
+  const result = await dbClient.getParent(id, userObj);
+  if (!result || !result.isPublic) {
+    res.status(404).json({
+      error: 'Public file Not found',
+    });
+    return;
+  }
+  // check if the file type is a folder
+  if (result.type === 'folder') {
+    res.status(400).json({
+      error: 'A folder doesn\'t have content',
+    });
+    return;
+  }
+
+  // check if file is present locally
+  // const filePath = path.join(fileDir, xToken);
+  // const y = '4c33b99c-bd7d-4c84-9cf6-c70dc380a280';
+  const filePath = result.localPath;
+  try {
+    await fs.access(filePath);
+  } catch (err) {
+    res.status(404).json({
+      error: 'File Not found',
+    });
+    return;
+  }
+  // By using the module mime-types
+  // get the MIME-type based on the name of the file
+  const mimeType = mime.lookup(result.name);
+  res.set('Content-Type', mimeType);
+  // return the content of the file with the correct MIME-type
+  res.sendFile(filePath);
+}
+
 module.exports = {
   postUpload,
   getShow,
   getIndex,
   putPublish,
   putUnpublish,
+  getFile,
 };
