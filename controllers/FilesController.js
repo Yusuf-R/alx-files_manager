@@ -382,6 +382,7 @@ async function getFile(req, res) {
   }
   // check if the id is linked to the file.
   const fileObj = await dbClient.checkFileObj(id);
+
   if (!fileObj) {
     res.status(404).json({
       error: 'Not found',
@@ -390,15 +391,15 @@ async function getFile(req, res) {
   }
   // check for the authorization fo this file
   // it will involve cross checking the userObj._id and the file_userId
-  if (fileObj.userId.toString() !== userObj._id.toString()) {
-    res.status(404).json({
-      error: 'Not found',
-    });
-    return;
-  }
+  // if (fileObj.userId.toString() !== userObj._id.toString()) {
+  //   res.status(404).json({
+  //     error: 'Not found',
+  //   });
+  //   return;
+  // }
 
   // Check file type and isPublic for both file and folder
-  if ((fileObj.type === 'file' || fileObj.type === 'folder') && fileObj.isPublic === false) {
+  if (((fileObj.type === 'file' || fileObj.type === 'folder') && fileObj.isPublic === false) && (fileObj.userId.toString() !== userObj._id.toString())) {
     res.status(404).json({
       error: 'Not found',
     });
