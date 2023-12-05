@@ -389,19 +389,27 @@ async function getFile(req, res) {
     });
     return;
   }
+  // check if the file type is a folder
+  if (fileObj.type === 'folder') {
+    res.status(400).json({
+      error: 'A folder doesn\'t have content',
+    });
+    return;
+  }
 
   // Check for authorization and file type
-  if ((fileObj.type === 'folder' || fileObj.type === 'file') && !fileObj.isPublic) {
+  if (fileObj.type === 'file' && !fileObj.isPublic) {
     res.status(404).json({
       error: 'Not found',
     });
     return;
   }
+  // check for the authorization fo this file
+  // it will involve cross checking the user_id and the file_id
 
-  // check if the file type is a folder
-  if (fileObj.type === 'folder') {
-    res.status(400).json({
-      error: 'A folder doesn\'t have content',
+  if (fileObj.userId !== userObj._id) {
+    res.status(404).json({
+      error: 'Not found',
     });
     return;
   }
