@@ -369,7 +369,7 @@ async function getFile(req, res) {
   const userObj = await userToken(xToken);
   if (!userObj) {
     res.status(401).json({
-      error: 'Unauthorized',
+      error: 'Not found',
     });
     return;
   }

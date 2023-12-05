@@ -9,6 +9,7 @@ const { getStatus, getStats } = require('../controllers/AppController');
 const { postNew, getMe } = require('../controllers/UsersController');
 const { getConnect, getDisconnect } = require('../controllers/AuthController');
 const { postUpload, getShow, getIndex, putPublish, putUnpublish, getFile } = require('../controllers/FilesController');
+
 // GET /status => AppController.getStatus
 router.get('/status', getStatus);
 
