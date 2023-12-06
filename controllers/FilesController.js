@@ -375,8 +375,8 @@ async function getFile(req, res) {
   }
   const { id } = await req.params;
   if (!id || id.length === 0 || id.length !== 24) {
-    res.status(400).json({
-      error: 'Missing id',
+    res.status(404).json({
+      error: 'Not found',
     });
     return;
   }
