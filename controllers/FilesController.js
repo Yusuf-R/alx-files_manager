@@ -11,6 +11,7 @@ const { v4: uuidv4 } = require('uuid');
 const dbClient = require('../utils/db').default;
 const { userXToken } = require('./UsersController');
 const acceptedType = ['folder', 'file', 'image'];
+const acceptedSize = ['500', '250', '100'];
 
 // altpath
 const altPath = '/tmp/files_manager';
@@ -394,6 +395,17 @@ async function getFile(req, res) {
     });
     return;
   }
+  // extract the size if available
+  const { size } = req.query;
+  if (size && typeof size !== 'string' && !acceptedSize.includes(size)) {
+    res.status(400).json({
+      error: 'Invalid size',
+    });
+    return;
+  }
+
+  // check if the size is in the accpeted size array
+
   // check if the id is linked to the file.
   const fileObj = await dbClient.checkFileObj(id);
 
@@ -419,7 +431,12 @@ async function getFile(req, res) {
     return;
   }
   // Construct the full file path
-  const filePath = fileObj.localPath;
+  let filePath = fileObj.localPath;
+
+  // if size we need to construct path base on the size
+  if (size) {
+    filePath = `${fileObj.localPath}_${size}`;
+  }
 
   // Check if the file exists in the local path
   try {
@@ -430,11 +447,14 @@ async function getFile(req, res) {
     });
     return;
   }
+  // read the data in the file path
+  const fileData = await fs.readFile(filePath);
+  console.log(fileData);
   // Get the MIME-type based on the name of the file
   const mimeType = mime.lookup(fileObj.name);
-  res.setHeader('Content-Type', mimeType || 'text/plain');
+  res.setHeader('Content-Type', mimeType);
   // return the content of the file with the correct MIME-type
-  res.sendFile(filePath);
+  res.status(200).send(fileData);
 }
 
 module.exports = {
