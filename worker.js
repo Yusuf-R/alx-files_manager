@@ -6,7 +6,8 @@ const fs = require('fs').promises;
 const dbClient = require('./utils/db').default;
 
 const fileQueue = new Queue('fileQueue');
-const thumbnailWidth = [500, 250, 100];
+const userQueue = new Queue('userQueue');
+const thumbnailWidth = ['500', '250', '100'];
 
 // In here we now process the job that has been added to the queue
 // If fileId is not present in the job, raise an error Missing fileId
@@ -48,8 +49,46 @@ fileQueue.process(async (job, done) => {
   done();
 });
 
+// setting up userQueue
+userQueue.process(async (job, done) => {
+  const { userId } = job.data;
+  if (!userId) {
+    done(new Error('Missing userId'));
+    return;
+  }
+  const user = await dbClient.getUser(userId);
+  if (!user) {
+    done(new Error('User not found'));
+    return;
+  }
+  // after all validation print to the console to welcome the User
+  console.log(`Welcome ${user.email}!`);
+  done();
+});
+
+/** leave the logs alone for now
 // logs on completion of the job
 // Listen for completed jobs
 fileQueue.on('completed', (job) => {
   console.log(`Job with fileID: ${job.data.fileId} completed`);
 });
+
+// logs on failure of the job
+// Listen for failed jobs
+fileQueue.on('failed', (job, err) => {
+  console.log(`Job with fileID: ${job.data.fileId} failed: ${err.message}`);
+});
+
+// logs ofr userQueue
+// logs for userQueue
+userQueue.on('completed', (job) => {
+  console.log(`Job with userId: ${job.data.userId} completed`);
+});
+
+// logs on failure of the job
+// Listen for failed jobs
+userQueue.on('failed', (job, err) => {
+  console.log(`Job with userId: ${job.data.userId} failed: ${err.message}`);
+});
+
+*/

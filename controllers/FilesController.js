@@ -449,7 +449,6 @@ async function getFile(req, res) {
   }
   // read the data in the file path
   const fileData = await fs.readFile(filePath);
-  console.log(fileData);
   // Get the MIME-type based on the name of the file
   const mimeType = mime.lookup(fileObj.name);
   res.setHeader('Content-Type', mimeType);

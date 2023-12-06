@@ -1,8 +1,9 @@
+/* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
+// start a background processing for sending a “Welcome email” to the user
+import Queue from 'bull';
 
 const { default: redisClient } = require('../utils/redis');
-
-/* eslint-disable max-len */
 const dbClient = require('../utils/db').default;
 
 async function postNew(req, res) {
@@ -38,6 +39,18 @@ async function postNew(req, res) {
   // Else, create the user in DB with the email and password provided
   // Return the creation of the user with a status code 201
   const data = await dbClient.addUser(email, password);
+  if (!data) {
+    res.status(500).json({
+      error: 'Error creating user',
+    });
+    return;
+  }
+  // create a background process
+  const userQueue = new Queue('userQueue');
+  const jobData = {
+    userId: data.insertedId.toString(),
+  };
+  userQueue.add(jobData);
   res.status(201).json({
     id: data.insertedId,
     email,
