@@ -3,6 +3,7 @@
 /* eslint-disable import/newline-after-import */
 
 // asynchrouns fs module
+import Queue from 'bull';
 const fs = require('fs').promises;
 const mime = require('mime-types');
 const path = require('path');
@@ -82,7 +83,6 @@ async function postUpload(req, res) {
   // if parentId is set
   if (parentId) {
     // check if the parent exists
-    console.log(userObj._id);
     const result = await dbClient.getParent(parentId, userObj);
     if (!result) {
       res.status(400).json({
@@ -154,6 +154,20 @@ async function postUpload(req, res) {
       localPath: filePath,
     };
     const result = await dbClient.createNewDoc(obj);
+    // create a que if the type is image
+    if (type === 'image') {
+      // create a bull job to resize the image
+      const fileQueue = new Queue('fileQueue');
+
+      // important data needed for the job to be processed
+      const jobObj = {
+        fileId: result.insertedId,
+        userId: userObj._id,
+      };
+
+      // addd a job to the queue
+      await fileQueue.add(jobObj);
+    }
     res.status(201).json({
       id: result.insertedId,
       name,
@@ -165,7 +179,7 @@ async function postUpload(req, res) {
     return;
   } catch (error) {
     res.status(500).json({
-      error: 'Failed to write data to file',
+      error: 'Failed to write data to file:  Ouch!',
     });
     throw error;
   }

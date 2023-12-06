@@ -224,6 +224,14 @@ class DBClient {
     const result = await collection.findOne({ _id: objID });
     return result;
   }
+
+  async getDocument(fileId, userId) {
+    const collection = this.db.collection('files');
+    const objID = new ObjectId(fileId);
+    const usrID = new ObjectId(userId);
+    const result = await collection.findOne({ _id: objID, userId: usrID });
+    return result;
+  }
 }
 
 // create an instane of the class and export it
